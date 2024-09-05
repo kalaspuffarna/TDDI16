@@ -10,7 +10,7 @@ int g(int n)
         ret += n % 10;
         n /= 10;
     }
-    if (ret > 10)
+    if (ret >= 10)
     {
         return g(ret);
     }
@@ -21,7 +21,10 @@ int main()
     int i{};
     while (std::cin >> i)
     {
-        std::cout << g(i) << std::endl;
+        if (i != 0)
+        {
+            std::cout << g(i) << std::endl;
+        }
     }
     return 0;
 }
