@@ -397,20 +397,35 @@ void AVL_Tree<Comparable>::insert(const Comparable &x)
 template <typename Comparable>
 void AVL_Tree<Comparable>::sort(Node_Pointer &t)
 {
-    if (t->node_height(t->left) - t->node_height(t->right) == 2){
-        if (t->node_height(t->left->left) >= (t->node_height(t->left->right)))
+    if (t == nullptr)
+    {
+        return;
+    }
+    sort(t->left);
+    sort(t->right);
+    t->calculate_height(t);
+    if (t->node_height(t->left) - t->node_height(t->right) == 2)
+    {
+        if (t->node_height(t->left->left) - t->node_height(t->left->right) == 1)
+        {
             t->single_rotate_with_left_child(t);
+        }
         else
+        {
             t->double_rotate_with_left_child(t);
+        }
     }
-    else if (t->node_height(t->right) - t->node_height(t->left) == 2){
-        if (t->node_height(t->right->right) >= t->node_height(t->right->left))
+    else if (t->node_height(t->right) - t->node_height(t->left) == 2)
+    {
+        if (t->node_height(t->right->right) - t->node_height(t->right->left) == 1)
+        {
             t->single_rotate_with_right_child(t);
+        }
         else
+        {
             t->double_rotate_with_right_child(t);
+        }
     }
-    else
-        t->calculate_height(t);
 }
 
 template <typename Comparable>
