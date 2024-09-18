@@ -220,7 +220,7 @@ void AVL_Tree_Node<Comparable>::print_tree(ostream &os, const Node_Pointer t, in
         }
 
         indent(os, depth);
-        os << t->element << endl;
+        os << t->element << " " << t->height << endl;
 
         if (t->left != nullptr)
         {
@@ -394,6 +394,8 @@ void AVL_Tree<Comparable>::insert(const Comparable &x)
 /**
  * Remove x from the tree.
  */
+
+//has to be O(log(n));
 template <typename Comparable>
 void AVL_Tree<Comparable>::sort(Node_Pointer &t)
 {
@@ -401,9 +403,6 @@ void AVL_Tree<Comparable>::sort(Node_Pointer &t)
     {
         return;
     }
-    sort(t->left);
-    sort(t->right);
-    t->calculate_height(t);
     if (t->node_height(t->left) - t->node_height(t->right) == 2)
     {
         if (t->node_height(t->left->left) - t->node_height(t->left->right) == 1)
@@ -414,6 +413,7 @@ void AVL_Tree<Comparable>::sort(Node_Pointer &t)
         {
             t->double_rotate_with_left_child(t);
         }
+        
     }
     else if (t->node_height(t->right) - t->node_height(t->left) == 2)
     {
@@ -425,14 +425,15 @@ void AVL_Tree<Comparable>::sort(Node_Pointer &t)
         {
             t->double_rotate_with_right_child(t);
         }
+        
     }
+    t->calculate_height(t);
 }
 
 template <typename Comparable>
 void AVL_Tree<Comparable>::remove(const Comparable &x)
 {
     simp_remove(x, root);
-    sort(root);
 }
 
 template <typename Comparable>
@@ -442,7 +443,7 @@ void AVL_Tree<Comparable>::simp_remove(const Comparable &x, Node_Pointer &t)
     {
         return; // Här kan ett undantag genereras i stället ...
     }
-
+    
     if (x < t->element)
     {
         simp_remove(x, t->left);
@@ -476,6 +477,7 @@ void AVL_Tree<Comparable>::simp_remove(const Comparable &x, Node_Pointer &t)
             delete tmp;
         }
     }
+    sort(t);
 }
 
 /**
