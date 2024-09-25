@@ -36,7 +36,10 @@ using std::vector;
  */
 
 // How small shall we make the images before comparing them?
-const size_t image_size = 9;
+const size_t image_size = 32;
+const size_t summary_size = 31;
+const int tolerance = 1;
+int equal_calls{};
 
 class Image_Summary
 {
@@ -49,7 +52,13 @@ public:
 
     bool operator==(const Image_Summary &other) const
     {
-        return horizontal == other.horizontal && vertical == other.vertical;
+        int diff{};
+        for(int i{}; i < summary_size; i++)
+        {
+            if(horizontal.at(i) != other.horizontal.at(i))diff++;
+            if(horizontal.at(i) != other.horizontal.at(i))diff++;
+        }
+        return diff <= tolerance;
     }
 };
 
@@ -64,33 +73,24 @@ namespace std
             size_t h2 = hash<vector<bool>>{}(summary.vertical);
             return h1 ^ (h2 << 1);
         }
+        //vi måste på något sätt manipulera jämnförelsen som sker mellan hasher
     };
 }
 
-// Compute an Image_Summary from an image. This is described in detail in the
-// lab instructions.
-// struct pair_hash
-// {
-//     template <class T1, class T2>
-//     std::size_t operator()(const std::pair<T1, T2> &pair) const
-//     {
-//         return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
-//     }
-// };
+
 Image_Summary compute_summary(const Image &image)
 {
-    const size_t summary_size = 8;
     Image_Summary result;
 
     // Precompute the brightness values and store them in a vector
     std::vector<std::vector<double>> brightness_matrix(summary_size + 1, std::vector<double>(summary_size + 1));
-    double a_bright = image.average_brightness();
+    //double a_bright = image.average_brightness();
 
     for (size_t y = 0; y < summary_size + 1; y++)
     {
         for (size_t x = 0; x < summary_size + 1; x++)
         {
-            brightness_matrix[y][x] = image.pixel(x, y).brightness() / a_bright;
+            brightness_matrix[y][x] = image.pixel(x, y).brightness() /* a_bright*/;
         }
     }
 
@@ -110,6 +110,15 @@ Image_Summary compute_summary(const Image &image)
     (void)summary_size;
 
     return result;
+}
+
+bool find(std::unordered_map<Image_Summary, vector<string>> const & map, Image_Summary const & is)
+{
+    for(auto e : map)
+    {
+        if(e.first == is) return true;
+    }
+    return false;
 }
 
 int main(int argc, const char *argv[])
@@ -140,7 +149,8 @@ int main(int argc, const char *argv[])
     for (const auto &file : files)
     {
         auto id{compute_summary(load_image(file).shrink(image_size, image_size))};
-        if (id_names.find(id) != id_names.end())
+        //if (id_names.find(id) != id_names.end()) //här är problemet, vi måste få in threshold skillnad i find
+        if(find(id_names, id))
         {
             duplicates.insert(id);
         }
